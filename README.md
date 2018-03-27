@@ -12,9 +12,9 @@ Analysis of Healthcare Expenditure Trends across all states in the USA using Cen
 
 1. Healthcare Spending by State
 
-      i. Per Capita
-     ii. Private Health Insurance
-    iii. Public Health Insurance
+      1. Per Capita
+      2. Private Health Insurance
+      3. Public Health Insurance
 
 2. Correlation between GDP and Healthcare Spending
 3. Percentage of population have private vs public insurance.
@@ -43,13 +43,13 @@ Analysis of Healthcare Expenditure Trends across all states in the USA using Cen
 * Our goal is to create visuals similar to the ones below.
 
 1. 10 Year Trend 
-    [images/10YearTrend.png]
+    ![images/10YearTrend.png]
 
 2. US Map  
-    [images/Map.png]   [images/Table.png]                                                   
+    ![images/Map.png]   ![images/Table.png]                                                   
 
 3. GDP Vs Healthcare Spending:
-    [images/GDPvsHealthcare.PNG]
+    ![images/GDPvsHealthcare.PNG]
 
 **GitHub Repo:**  [https://github.com/jag0717/UCB-Project2](https://github.com/jag0717/UCB-Project2)
 
