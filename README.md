@@ -1,5 +1,5 @@
 
-**UCB Project II Proposal**
+*UCB Project II Proposal*
 
 **Project Title** : Healthcare Expenditure Trends by State (2001 – 2014).
 
@@ -12,10 +12,9 @@ Analysis of Healthcare Expenditure Trends across all states in the USA using Cen
 **Research Questions to Answer:**
 
 1. Healthcare Spending by State
-
-      1. Per Capita
-      2. Private Health Insurance
-      3. Public Health Insurance
+            1. Per Capita
+            2. Private Health Insurance
+            3. Public Health Insurance
 
 2. Correlation between GDP and Healthcare Spending
 3. Percentage of population have private vs public insurance.
@@ -46,7 +45,7 @@ Analysis of Healthcare Expenditure Trends across all states in the USA using Cen
 1. 10 Year Trend 
     ![png](images/10YearTrend.png)
 
-2. US Map  
+2. Map  
     ![png](images/Map.png)  
     
     Table
