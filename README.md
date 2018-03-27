@@ -1,6 +1,6 @@
 **UCB Project II Proposal**
 
-**Project Title** :Healthcare Expenditure Trends by State (2001 – 2014).
+**Project Title** : Healthcare Expenditure Trends by State (2001 – 2014).
 
 **Team Members** : Jen, Jagatha, Vijaya and Manu
 
@@ -43,7 +43,7 @@ Analysis of Healthcare Expenditure Trends across all states in the USA using Cen
 * Our goal is to create visuals similar to the ones below.
 
 1. 10 Year Trend 
-    ![images/10YearTrend.png]
+    ![Trend](images/10YearTrend.png)
 
 2. US Map  
     ![images/Map.png]   ![images/Table.png]                                                   
