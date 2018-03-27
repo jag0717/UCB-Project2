@@ -1,3 +1,4 @@
+
 **UCB Project II Proposal**
 
 **Project Title** : Healthcare Expenditure Trends by State (2001 – 2014).
@@ -46,7 +47,10 @@ Analysis of Healthcare Expenditure Trends across all states in the USA using Cen
     ![png](images/10YearTrend.png)
 
 2. US Map  
-    ![png](images/Map.png)   ![png](images/Table.png)                                                   
+    ![png](images/Map.png)  
+    
+    Table
+    ![png](images/Table.png)                                                   
 
 3. GDP Vs Healthcare Spending:
     ![png](images/GDPvsHealthcare.PNG)
