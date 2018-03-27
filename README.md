@@ -46,10 +46,10 @@ Analysis of Healthcare Expenditure Trends across all states in the USA using Cen
     ![png](images/10YearTrend.png)
 
 2. US Map  
-    ![images/Map.png]   ![images/Table.png]                                                   
+    ![png](images/Map.png)   ![png](images/Table.png)                                                   
 
 3. GDP Vs Healthcare Spending:
-    ![images/GDPvsHealthcare.PNG]
+    ![png](images/GDPvsHealthcare.PNG)
 
 **GitHub Repo:**  [https://github.com/jag0717/UCB-Project2](https://github.com/jag0717/UCB-Project2)
 
