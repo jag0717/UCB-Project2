@@ -1,5 +1,5 @@
 
-*UCB Project II Proposal*
+# UCB Project II Proposal
 
 **Project Title** : Healthcare Expenditure Trends by State (2001 – 2014).
 
