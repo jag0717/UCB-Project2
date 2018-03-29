@@ -73,6 +73,20 @@ def getStatesPerCapita(state):
     state_info.pop('Average_Annual_Percent_Growth', None)
     state_info.pop('Item', None)
     return jsonify(state_info)
+
+@app.route('/yearlyStatesPerCapita/<year>')
+def getYearlyStatesPerCapita(year):
+    results = engine.execute('SELECT * from US_PER_CAPITA').fetchall()
+    gdp_df = pd.DataFrame(results, columns=['Item','State_Name', '2001','2002','2003','2004','2005','2006','2007','2008','2009','2010','2011','2012','2013','2014', 'Avg'])
+    gdp_df = gdp_df[['State_Name',year]]
+    gdp_df.set_index('State_Name', inplace=True)
+    perCapita = gdp_df.to_dict()
+    temp_dict = perCapita[year]
+    response_dict = {}
+    for key, value in temp_dict.items():
+        response_dict[key] = np.asscalar(value)
+
+    return jsonify(response_dict)
     
 if __name__ == '__main__':
     app.run(debug=True)
