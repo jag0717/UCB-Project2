@@ -85,6 +85,18 @@ function getPerCapitaForSelectedStates(){
     }
 }
 
+function changedYear(year){
+    console.log(" selected year ", year);
+    url = "/yearlyStatesPerCapita/" + year;
+   
+    Plotly.d3.json(url, function (error, response) {
+        
+            console.log("year response", response);
+            // update US Map
+  
+    });    
+}
+
 
 //populate drop down for the first time
 populateYears()
