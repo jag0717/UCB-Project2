@@ -3,6 +3,9 @@ var selectedStates = [];
 var selectedYear = 2001;
 var stateSelection;
 
+var years = []; // Jagatha
+
+
 // populate the drop down of our years 
 function populateYears(){
 
@@ -13,6 +16,7 @@ function populateYears(){
             console.log(response);
 
             var data = response
+            years = response;
             for( i =0; i< data.length; i++){
                 $mySelection.append('option').text(data[i]).property('value', data[i]);
             }
@@ -82,6 +86,8 @@ function changedState(val){
 
     getPerCapitaForSelectedStates();
     displayInsuredPopulationByState();
+    getStateGdpThsForSelectedStates(); // Jagatha
+
 
 }
 
@@ -116,7 +122,99 @@ function getPerCapitaForSelectedStates(){
     }
 }
 
+
 // year dropdown updated
+// Jagatha changes Start
+// Get GDP and Total Health Spending (THS) data for the selected state 
+function getStateGdpThsForSelectedStates(){
+        url = "/statesGdpThs/"+ selectedStates[selectedStates.length - 1] ;
+        Plotly.d3.json(url, function (error, response) {
+            console.log("state gdp total health speanding: ", response);
+            updateGdpLinePlot(response);
+
+        });
+}
+
+// Plot GDP and THS trend 
+function updateGdpLinePlot(data)
+{
+	var plot = document.getElementById('plot');
+
+    var trace1 =
+		{
+			x: years,
+			y: data['gdp'],
+			mode: 'lines+markers',
+            type: 'scatter',
+            name: 'GDP',
+            marker: { symbol: 1, color: 'red' }
+        };
+        
+    var trace2 =
+		{
+			x: years,
+			y: data['ths'],
+			mode: 'lines+markers',
+            type: 'scatter',
+            name: 'Total Health Spending',
+            marker: { symbol: 1, color: 'blue' }
+		};
+	
+		var data = [trace1, trace2];
+		
+        var layout = { title: '<b>'+ selectedStates[selectedStates.length - 1] + '</b>' + 
+                               ' - Growth in State Health Expenditures and <br>' +
+                              'Gross Domestic Product (GDP), 2001 - 2014',
+                       xaxis: { range: years, title: '<b> Calendar Years </b>' },
+                       yaxis: { title: '<b> Annual Percentage Change </b>', linewidth:1 },
+                       height: 600
+                     };
+
+		Plotly.newPlot(plot, data, layout);
+}
+
+// populate Country trend 
+function populateCountryTrend()
+{    
+        url = "/countryTrend";
+        Plotly.d3.json(url, function (error, response) {
+                console.log(response);
+                updateCountryTrend(response);
+        });        
+}
+
+// Plot the history of health care spending for Selected Countries
+function updateCountryTrend(data)
+{
+    var plot = document.getElementById('countryTrend');
+    i = 0; trace = [];
+
+    cntryPlotYears = ['2000', '2001','2002','2003','2004','2005','2006','2007','2008','2009','2010','2011','2012','2013','2014','2015','2016'];    
+    for (const key in data) {
+        console.log('country :'+ data[key]);
+        trace[i] = {
+			x: cntryPlotYears,
+			y: data[key],
+			mode: 'lines+markers',
+            type: 'scatter',
+            name: key,
+            marker: { symbol: 1 }
+        }; 
+        i = i+1;      
+    }
+		var data = trace;
+		
+        var layout = { title: '<b>'+ 'The History of Health Care Spending, 2000 - 2016' + '</b>',
+                       xaxis: { range: cntryPlotYears, title: '<b> Calendar Years </b>', linewidth:1 },
+                       yaxis: { title: '<b> Per Capita Spending </b>', linewidth:1 },
+                       height: 600,
+                       width: 900
+                     };
+
+		Plotly.newPlot(plot, data, layout);
+}
+// Jagatha changes End
+
 function changedYear(year){
     selectedYear = year;
     console.log(" selected year ", year);
@@ -236,9 +334,13 @@ for (var i = 0; i < anchors.length ; i++) {
 
 
 //populate drop down for the first time
+
 populateYears();
 populateStates();
 poopulateStatesDropdown();
 changedYear(selectedYear);
+populateCountryTrend() // Jagatha
+
+
 
 
