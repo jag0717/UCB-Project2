@@ -1,26 +1,56 @@
-#sampleMetadata{
-    font-size: 14px;
-}
-ul {
-    padding: 10px;
-    list-style-type: none;
-  }
-.sampleInfo{
-    margin-top: 20px;
-    border: solid 1px;
-    border-color: rgb(71, 116, 184);
-}
-
-.sampleInfo h6{
-    background-color: rgb(71, 116, 184);
-    padding:10px;
-    color: white;
-}
-
 h6{
-    font-size: 14px;
+    color: white;
 }
 
 .mySample{
     padding: 10px;
+    height: auto;
+    background-color: #e9eff0;
+}
+
+.myCheckBoxeLabels{
+    padding: 0px 5px 0px 10px;
+}
+
+.myCheckBoxes{
+    margin:10px !important;
+}
+
+.cardHeader{
+    padding: 10px 0px 0px 10px;
+    background-color: #95988f;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+#selYear{
+    height: 46px;
+}
+
+.myrow{
+    margin-top: 80px;
+}
+
+
+.my-sub-nav-container ul li { 
+    display: inline; 
+    padding-right: 100px;
+}
+
+.my-sub-nav-container a{
+    text-decoration: none;
+}
+
+.my-sub-nav-container img{
+    height:20px;
+    width:25px;
+    margin-right: 5px;
+}
+
+.myStateDropdown select{
+    display: none; 
+}
+
+.myStateCheckboxes {
+    display: none;
 }
