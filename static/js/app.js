@@ -235,7 +235,7 @@ function changedYear(year){
     svg_remove();
     buildmaps(year);
     displayInsuredPopulationByState();
-    
+    displayTable();
     
     //displayInsuredPopulation(year);
 }
@@ -498,14 +498,130 @@ function buildmaps(year) {
   }
 
 
+
+/////////////////////////////////////////////////////// display table /////////////////////////////////////////////////
+
+function displayTable(year) {
+
+    d3.csv("/static/data/US_PER_CAPITA.csv", function(err, data) {
+
+        url = "/years";
+        Plotly.d3.json(url, function (error, response) {
+        
+        var year = response
+            for( i =1; i< data.length; i++){
+                return data[i];
+            }
+    
+    }); 
+    
+        console.log(data);
+        var sortAscending = true;
+            
+        function tabulate(data, columns) {
+                                    
+            var margin = {top: 50, right: 50, bottom: 50, left: 50},
+                width = 500 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
+
+            var svg = d3.select("body")
+                .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("text")
+                    .attr("class", "title")
+                    .attr("x", (width / 2))             
+                    .attr("y", 0 - (margin.top / 2))
+                    .attr("text-anchor", "middle")  
+                    .style("font-size", "16px") 
+                    .style("text-decoration", "underline")  
+                    .text("Health Spending Per Capita")
+                .append("g")
+                    .attr("transform", 
+                    "translate(" + margin.left + "," + margin.top + ")");
+                             
+            var table = d3.select('#perCapitaTable')
+                .append('table')
+                // .append("foreignObject")
+                .attr("width", 400)
+                .attr("height", 500)
+                .attr("style", "margin-top: 100px")
+                .attr("class", "table table-condensed table-striped")
+                .style("border-collapse", "collapse")         
+                .style("border", "2px black solid"),
+                thead = table.append("thead");
+            
+            var caption = table.append("caption").text("Health Spending Per Capita");
+            
+            var header = d3.select("svg").append("div").attr("class", "well");
+            header.append("h5").text("Dynamic D3 Array of Tables Demo");
+            
+            var tbody = table.append("tbody");
+            
+            // append the header row
+            var headers = thead.append('tr')
+              .selectAll('th')
+              .data(columns)
+              .enter()
+              .append('th')
+                .text(function (column) { return column; })
+              .on('click', function (d) {
+                headers.attr('class', 'header');
+                  if (sortAscending) {
+                      rows.sort(function(a, b) { return d3.ascending(b[d], a[d]); });
+                      sortAscending = false;
+                      this.className = 'aes';
+                  } else {
+                      rows.sort(function(a, b) { return d3.descending(b[d], a[d]); });
+                      sortAscending = true;
+                      this.className = 'des';
+                  }  
+                });  
+    
+            // create a row for each object in the data
+            var rows = table.append('tbody').selectAll('tr')
+              .data(data).enter()
+              .append('tr');
+
+            rows.selectAll('td')
+              .data(data, function(d) {
+                  return d.name;   
+              });
+
+            rows.enter()
+              .append('td');
+              
+            // create a cell in each row for each column
+            var cells = rows.selectAll('td')
+              .data(function (row) {
+                return columns.map(function (column) {
+                  return {column: column, value: row[column]};
+                });
+              })
+
+            cells.enter()
+                .append('td')
+                .attr("colspan", "1")
+                .text(function (d) { return d.value; });
+    
+          return table;
+        
+        }      
+        // render the table(s)
+        tabulate(data, ['State_Name', selectedYear]); // 2 column table 
+        });
+}
+
 ////////////////////////////////////////////// Trend Line graph //////////////////////////////////////////////
 
+
 function getPerCapitaForSelectedStates(){
-    var ctx = document.getElementById("lineChart").getContext("2d");    
-   var state = stateSelection;
+ 
+    var ctx = document.getElementById("lineChart").getContext("2d");
+    var state = stateSelection;
     console.log(state)
 
-       url = "/statesPerCapita/" + state
+        url = "/statesPerCapita/" + state
         Plotly.d3.json(url, function (error, response) {
             console.log("state gdp resp: ", response);
             var obj = response
@@ -518,18 +634,20 @@ function getPerCapitaForSelectedStates(){
                 var g = Math.floor(Math.random() * 255);
                 var b = Math.floor(Math.random() * 255);
                 return "rgb(" + r + "," + g + "," + b + ")";
-            }    
+            }
+            
+            if (lineChart) {
+                lineChart.Destroy()
+            }
 
-           // Create our number formatter.
-            var formatter = new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2,
-            });
-
-           var lineChart = new Chart(ctx, {
+            var lineChart = new Chart(ctx, {
                 type: 'line',
                 options: {
+                    title: {
+                        display: true,
+                        fontSize: 14,
+                        text: 'Health Care Expenditures per Capita by State of Residence'
+                    },
                     tooltips: {
                         callbacks: {
                             label: function(tooltipItem, data) {
@@ -553,9 +671,9 @@ function getPerCapitaForSelectedStates(){
                         }]
                     },
                 },    
-               data: {
-                   labels: Object.keys(obj),
-                   datasets: [{
+                data: {
+                    labels: Object.keys(obj),
+                    datasets: [{
                         label: state,
                         fill: false,
                         lineTension: 0,
@@ -565,12 +683,11 @@ function getPerCapitaForSelectedStates(){
                         borderDash: [],
                         borderDashOffset: 0.0,
                         borderJointStyle: 'miter',
-                        data: Object.values(obj)
+                        data: Object.values(obj),
                     }]                    
-                }
-            })
-    });
-    
+                }                
+            })  
+     });       
 }
 
 /////////////////////////////////////////////// anchor elements control//////////////////////////////////////
@@ -591,6 +708,7 @@ for (var i = 0; i < anchors.length ; i++) {
             var gdpPlot = Plotly.d3.select("#gdpPlot");
             var map = Plotly.d3.select("#canvas-svg");
             var lineChart = Plotly.d3.select("#lineChart");
+            var perCapitaTable = Plotly.d3.select("#perCapitaTable");
 
 
             switch(anchorID){
@@ -602,7 +720,7 @@ for (var i = 0; i < anchors.length ; i++) {
                     donut.attr("style", "display: none");
                     countryTrend.attr("style", "display: none");
                     gdpPlot.attr("style", "display: none");
-
+                    perCapitaTable.attr("style", "display: none");
                     stateCheckboxes.attr("style", "display: none");
                     stateDropdowns.attr("style", "display: inline");
                     buildmaps(selectedYear);
@@ -615,7 +733,7 @@ for (var i = 0; i < anchors.length ; i++) {
                     donut.attr("style", "display: none");
                     countryTrend.attr("style", "display: none");
                     gdpPlot.attr("style", "display: none");
-
+                    perCapitaTable.attr("style", "display: none");
                     stateCheckboxes.attr("style", "display: none");
                     stateDropdowns.attr("style", "display: inline");
                     getPerCapitaForSelectedStates();
@@ -625,7 +743,7 @@ for (var i = 0; i < anchors.length ; i++) {
                     //displayPieChart
 
                     donut.attr("style", "display: inline");
-
+                    perCapitaTable.attr("style", "display: none");
                     lineChart.attr("style", "display: none");
                     map.attr("style", "display: none");
                     countryTrend.attr("style", "display: none");
@@ -641,7 +759,7 @@ for (var i = 0; i < anchors.length ; i++) {
                     //gdp 
                     countryTrend.attr("style", "display: inline");
                     gdpPlot.attr("style", "display: inline");
-
+                    perCapitaTable.attr("style", "display: none");
                     donut.attr("style", "display: none");
                     lineChart.attr("style", "display: none");
                     map.attr("style", "display: none");
@@ -653,10 +771,15 @@ for (var i = 0; i < anchors.length ; i++) {
                     svg_remove();
                     break;
                 case("an0"):
+                    perCapitaTable.attr("style", "display: inline");
                     stateCheckboxes.attr("style", "display: block");
                     stateDropdowns.attr("style", "display: none");
+                    donut.attr("style", "display: none");
+                    lineChart.attr("style", "display: none");
+                    map.attr("style", "display: none");
+                    countryTrend.attr("style", "display: none");
                     displayTable();
-
+                    svg_remove();
                     break;
                 default:
                     lineChart.attr("style", "display: none");
