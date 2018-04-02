@@ -1,0 +1,16 @@
+    1  FLASK_APP=pet_pals/app.py flask run
+    2  git status
+    3  git branch
+    4  git branch jenchen
+    5  git checkout jenchen
+    6  git pull origin master
+    7  git stash
+    8  git pull origin master
+    9  git status
+   10  git add .
+   11  git status
+   12  git commit -m 'Added table, heading, title for trend, html text and format'
+   13  git status
+   14  git push
+   15  source activate PythonData
+   16  history >> file.txt
