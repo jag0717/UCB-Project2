@@ -302,7 +302,7 @@ function displayHCStatsChart(pop_resp, pc_resp){
 
     var data = [trace1, trace2];
     
-    var layout = { title: '<b>'+"Population and Per Capita Spending for <br> Private, Medicare and Medicaid Health Insurances"+'</b><br>',
+    var layout = { title: '<b>'+"Population and Per Capita Spending for <br>"+ stateSelection+" in the year "+ selectedYear +'</b><br>',
                    height: 600,
                    width: 900,
                    barmode: 'group',
@@ -359,7 +359,7 @@ function displayHCSpendingPieChart(hcspending_resp){
     var data = [trace1];
     
     var layout = { 
-                   title: "<b> Total Health Care Spending </b>",
+                   title: "<b> Total Health Care Spending (in Millions $) <br> for " +  stateSelection+" in the year "+ selectedYear +'</b><br>',
                    height: 600,
                    width: 900
                  };
