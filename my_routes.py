@@ -74,6 +74,20 @@ def getYearStatePop(table_name, year, state):
             state_pop = value
     return state_pop
 
+def getYearStatePercapita(table_name, year, state):
+    query = 'SELECT * from ' + table_name
+    results = engine.execute(query).fetchall()
+    tot_pc_df = pd.DataFrame(results, columns=['Item','State_Name', '2001','2002','2003','2004','2005','2006','2007','2008','2009','2010','2011','2012','2013','2014', 'Avg'])
+    tot_pc_df = tot_pc_df[['State_Name',year]]
+    tot_pc_df.set_index('State_Name', inplace=True)
+    percapita = tot_pc_df.to_dict()
+    temp_dict = percapita[year]
+    state_pc = 0
+    for key, value in temp_dict.items():
+        if(key == state):
+            state_pc = value
+    return state_pc
+
 @app.route("/")
 def home():
     """Render Home Page."""
@@ -173,9 +187,8 @@ def getYearlyInsuredPopulation(year):
     total_phi_pop = getYearPop("PHI_POPULATION", year)
     total_medicaid_pop = getYearPop("MEDICAID_POPULATION", year)
     total_medicare_pop = getYearPop("MEDICARE_POPULATION", year)
-    total_uninsured_pop = total_us_pop - total_phi_pop - total_medicaid_pop - total_medicare_pop
     response_dict = {'PHI_POPULATION' :  total_phi_pop, 'MEDICAID_POPULATION':  total_medicaid_pop,\
-                     'MEDICARE_POPULATION': total_medicare_pop, 'UNINSURED_POPULATION': total_uninsured_pop}
+                     'MEDICARE_POPULATION': total_medicare_pop}
     return jsonify(response_dict)
 
 @app.route('/yearlyInsuredPopulationByState/<year>/<state>')
@@ -184,12 +197,30 @@ def getYearlyInsuredPopulationByState(year,state):
     total_phi_pop = np.asscalar(getYearStatePop("PHI_POPULATION", year, state))
     total_medicaid_pop = np.asscalar(getYearStatePop("MEDICAID_POPULATION", year, state))
     total_medicare_pop = np.asscalar(getYearStatePop("MEDICARE_POPULATION", year, state))
-    total_uninsured_pop = np.asscalar(total_us_pop - total_phi_pop - total_medicaid_pop - total_medicare_pop)
-    if total_uninsured_pop < 0:
-        total_uninsured_pop = 0
     
-    response_dict = {'PHI_POPULATION' :  total_phi_pop, 'MEDICAID_POPULATION':  total_medicaid_pop,\
-                     'MEDICARE_POPULATION': total_medicare_pop, 'UNINSURED_POPULATION': total_uninsured_pop}
+    response_dict = {'PRIVATE' :  total_phi_pop, 'MEDICAID':  total_medicaid_pop,\
+                     'MEDICARE': total_medicare_pop}
+    return jsonify(response_dict)
+
+@app.route('/yearlyPerCapitaByState/<year>/<state>')
+def getYearlyPerCapitaByState(year,state):
+    total_phi_pc = np.asscalar(getYearStatePercapita("PHI_PER_CAPITA", year, state))
+    total_medicaid_pc = np.asscalar(getYearStatePercapita("MEDICAID_PER_CAPITA", year, state))
+    total_medicare_pc = np.asscalar(getYearStatePercapita("MEDICARE_PER_CAPITA", year, state))
+    
+    response_dict = {'PRIVATE' :  total_phi_pc, 'MEDICAID':  total_medicaid_pc,\
+                     'MEDICARE': total_medicare_pc}
+    return jsonify(response_dict)
+
+@app.route('/yearlyHCSpendingByState/<year>/<state>')
+def getYearlyHCSpendingByState(year,state):
+    total_us_spending = np.asscalar(getYearStatePop("US_TOTAL_SPENDING", year, state))
+    total_phi_spending = np.asscalar(getYearStatePercapita("PHI_TOTAL_SPENDING", year, state))
+    total_medicaid_spending = np.asscalar(getYearStatePercapita("MEDICAID_TOTAL_SPENDING", year, state))
+    total_medicare_spending = np.asscalar(getYearStatePercapita("MEDICARE_TOTAL_SPENDING", year, state))
+    
+    response_dict = {'PRIVATE' :  total_phi_spending, 'MEDICAID':  total_medicaid_spending,\
+                     'MEDICARE': total_medicare_spending}
     return jsonify(response_dict)
 
 if __name__ == '__main__':

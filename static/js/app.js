@@ -96,8 +96,8 @@ function updatedStateSelection(state){
     stateSelection = state;
     getStateGdpThsForSelectedStates();
     getPerCapitaForSelectedStates();
-    displayInsuredPopulationByState();
-
+    getInsuredPopulationByState();
+    getHCSpendingByState();
 }
 
 // populate states dropdown
@@ -234,12 +234,11 @@ function changedYear(year){
     */
     svg_remove();
     buildmaps(year);
-    displayInsuredPopulationByState();
+    getInsuredPopulationByState();
+    getHCSpendingByState();
     
-    
-    //displayInsuredPopulation(year);
 }
-
+/*
 function displayInsuredPopulation(year){
     popUrl = "/yearlyInsuredPopulation/" + year;
     Plotly.d3.json(popUrl, function (error, res) {
@@ -249,47 +248,120 @@ function displayInsuredPopulation(year){
             displayDonutChart(res);
     });
 }
+*/
+//////////////////////////////////////////////////// HC Stats //////////////////////////////////////////////
 
-function displayInsuredPopulationByState(){
-    //for (i = 0; i < selectedStates.length; i++) { 
-        popUrl = "/yearlyInsuredPopulationByState/" + selectedYear + "/"+ stateSelection;
-        Plotly.d3.json(popUrl, function (error, res) {
+function getInsuredPopulationByState(){
+    popUrl = "/yearlyInsuredPopulationByState/" + selectedYear + "/"+ stateSelection;
+    Plotly.d3.json(popUrl, function (error, pop_resp) {
+        
+            console.log("year Insured Population by state response", pop_resp);
+            popUrl = "/yearlyPerCapitaByState/" + selectedYear + "/"+ stateSelection;
+            Plotly.d3.json(popUrl, function (error, pc_resp) {
+                
+                    console.log("year Per capita by state response", pc_resp);
+                    // update Pie chart  with population and percapita
+                displayHCStatsChart(pop_resp, pc_resp);
+            });
             
-                console.log("year Insured Population by state response", res);
-                // update Pie chart  with population
-                displayDonutChart(res);
-        });
-    //}
+    }); 
 }
 
-function displayDonutChart(res){
-    var myDataSet = res;
+function displayHCStatsChart(pop_resp, pc_resp){
+    //var myDataSet = res;
+    console.log("pop_resp ", pop_resp);
+    console.log("pc_resp ", pc_resp);
+    
+    var myChart = document.getElementById("hc-summary-chart");
+    var trace1 =
+    {
+        x: [0.5, 1.5, 2.5],
+        y: Object.values(pop_resp),
+        text: ['Population', 'Population', 'Population'],
+        hoverinfo : "y+text",
+        type: 'bar',
+        //width: [0.8, 0.8, 0.8],
+        name: 'Population',
+        marker: { symbol: 1, color: 'red' , opacity: 0.6}
+    };
+    
+    var trace2 =
+    {
+        x: [1, 2, 3],
+        y: Object.values(pc_resp),
+        text: ['Per Capita', 'Per Capita', 'Per Capita'],
+        yaxis: "y2",
+        hoverinfo : "y+text",
+        type: 'bar',
+        name: 'Per Capita',
+        marker: { symbol: 1, color: 'blue' , opacity: 0.6}
+    };
 
-    var myChart = document.getElementById("donut-chart");
-    new Chart(myChart, {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(myDataSet),
-          datasets: [{
-            label: "Population (Thousands)",
-            backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9"],
-            data: Object.values(myDataSet)
-          }]
-        },
-        options: {
-          title: {
-            display: true,
-            position: "top",
-            align:"left",
-            text: 'Insured Population (Thousands)'
-          },
-          legend: {
-            display: true,
-            position: 'right',
+    var data = [trace1, trace2];
+    
+    var layout = { title: '<b>'+"Population and Per Capita Spending for <br> Private, Medicare and Medicaid Health Insurances"+'</b><br>',
+                   height: 600,
+                   width: 900,
+                   barmode: 'group',
+                   bargap: 0.5,
+                   bargroupgap: 0.05,
+                   legend: {
+                    x: 1000,
+                    y: 1.1
+                   },
+                   xaxis: {showticklabels: true, tickvals:["0.75", "1.8", "2.75"],ticktext: ["Medicaid", "Medicare", "Private"]},
+                   yaxis: {title: " Population (in thousands)"},
+                   yaxis2: {
+                     title: "Per capita spending ($)",
+                     overlaying: "y",
+                     side: "right"
+                   }
+                 };
+    
+    Plotly.newPlot(myChart, data, layout);   
+    
+}
+
+function getHCSpendingByState(){
+    popUrl = "/yearlyHCSpendingByState/" + selectedYear + "/"+ stateSelection;
+    Plotly.d3.json(popUrl, function (error, hcspending_resp) {
+        
+            console.log("year HCSpending by state response", hcspending_resp);
+            displayHCSpendingPieChart(hcspending_resp);
+           
             
+    }); 
+}
+
+function displayHCSpendingPieChart(hcspending_resp){
+    console.log("hcspending_resp ", hcspending_resp);
+    
+    var myChart = document.getElementById("hc-spending-chart");
+    
+    var trace1 =
+    {
+        labels: Object.keys(hcspending_resp),
+        values: Object.values(hcspending_resp),
+        type: 'pie',
+        textfont: {
+            size: 18,
+            color: 'white'
+        },
+        marker: {
+            colors: ['rgb(0, 76, 153)', 'rgb(0, 128, 255)', 'rgb(153, 204, 255)'],
+            opacity: 0.6
           }
-        }
-    });
+    };
+
+    var data = [trace1];
+    
+    var layout = { 
+                   title: "<b> Total Health Care Spending </b>",
+                   height: 600,
+                   width: 900
+                 };
+
+    Plotly.newPlot(myChart, data, layout);   
     
 }
 
@@ -472,15 +544,20 @@ function buildmaps(year) {
                       $(this).attr("fill-opacity", "1.0");
                       $("#tooltip-container").hide();
                   });
-        
-    //               function draw(){
-    
-    // }
+
           svg.append("path")
               .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
               .attr("class", "categories")
               .attr("transform", "scale(" + SCALE + ")")
               .attr("d", path);
+
+          svg.append("text")
+              .attr("x", width/2.7 )
+              .attr("y", height - 10)
+              .style("font-weight", "bold")
+              .style("font-size", "18px")
+              .style("text-anchor", "middle")
+              .text("'Healthcare per capita' of each state in US - " + year);
         }
         
         d3.json("https://s3-us-west-2.amazonaws.com/vida-public/geo/us.json", function(error, us) {
@@ -586,45 +663,48 @@ for (var i = 0; i < anchors.length ; i++) {
             var anchorID = event.target.attributes[2].nodeValue;
             var stateCheckboxes = Plotly.d3.select(".myStateCheckboxes");
             var stateDropdowns = Plotly.d3.select(".myStateDropdown");
-            var donut = Plotly.d3.select("#donut-chart");
             var countryTrend = Plotly.d3.select("#countryTrend");
             var gdpPlot = Plotly.d3.select("#gdpPlot");
             var map = Plotly.d3.select("#canvas-svg");
             var lineChart = Plotly.d3.select("#lineChart");
-
+            var hcSummaryChart = Plotly.d3.select("#hc-summary-chart");
+            var hcSpendingChart = Plotly.d3.select("#hc-spending-chart");
 
             switch(anchorID){
-                case("an1"):
+                case("an-map"):
                     // display map
                     map.attr("style", "display: inline");
 
                     lineChart.attr("style", "display: none");
-                    donut.attr("style", "display: none");
                     countryTrend.attr("style", "display: none");
                     gdpPlot.attr("style", "display: none");
+                    hcSummaryChart.attr("style", "display: none");
+                    hcSpendingChart.attr("style", "display: none");
 
                     stateCheckboxes.attr("style", "display: none");
                     stateDropdowns.attr("style", "display: inline");
                     buildmaps(selectedYear);
                     svg_remove();
                     break;
-                case("an2"):
+                case("an-trend"):
                     lineChart.attr("style", "display: inline");
 
                     map.attr("style", "display: none");
-                    donut.attr("style", "display: none");
                     countryTrend.attr("style", "display: none");
                     gdpPlot.attr("style", "display: none");
+                    hcSummaryChart.attr("style", "display: none");
+                    hcSpendingChart.attr("style", "display: none");
 
                     stateCheckboxes.attr("style", "display: none");
                     stateDropdowns.attr("style", "display: inline");
                     getPerCapitaForSelectedStates();
                     svg_remove();
                     break;
-                case("an3"):
+                case("an-stats"):
                     //displayPieChart
 
-                    donut.attr("style", "display: inline");
+                    hcSummaryChart.attr("style", "display: inline");
+                    hcSpendingChart.attr("style", "display: inline");
 
                     lineChart.attr("style", "display: none");
                     map.attr("style", "display: none");
@@ -633,18 +713,19 @@ for (var i = 0; i < anchors.length ; i++) {
 
                     stateCheckboxes.attr("style", "display: none");
                     stateDropdowns.attr("style", "display: inline");
-                    console.log("selectedYear ", selectedYear);
-                    displayInsuredPopulation(selectedYear);
+                    getInsuredPopulationByState();
+                    getHCSpendingByState();
                     svg_remove();
                     break;
-                case("an4"):
+                case("an-gdp"):
                     //gdp 
                     countryTrend.attr("style", "display: inline");
                     gdpPlot.attr("style", "display: inline");
 
-                    donut.attr("style", "display: none");
                     lineChart.attr("style", "display: none");
                     map.attr("style", "display: none");
+                    hcSummaryChart.attr("style", "display: none");
+                    hcSpendingChart.attr("style", "display: none");
 
                     stateCheckboxes.attr("style", "display: none");
                     stateDropdowns.attr("style", "display: inline");
@@ -652,11 +733,10 @@ for (var i = 0; i < anchors.length ; i++) {
                     getStateGdpThsForSelectedStates(); 
                     svg_remove();
                     break;
-                case("an0"):
+                case("an-table"):
                     stateCheckboxes.attr("style", "display: block");
                     stateDropdowns.attr("style", "display: none");
                     displayTable();
-
                     break;
                 default:
                     lineChart.attr("style", "display: none");
@@ -664,6 +744,8 @@ for (var i = 0; i < anchors.length ; i++) {
                     donut.attr("style", "display: none");
                     countryTrend.attr("style", "display: none");
                     gdpPlot.attr("style", "display: none");
+                    hcSummaryChart.attr("style", "display: none");
+                    hcSpendingChart.attr("style", "display: none");
                     console.log("in default case");
                     break;
             }
