@@ -4,7 +4,10 @@ var selectedYear = 2001;
 var stateSelection = "Alabama";
 
 var years = []; // Jagatha
-
+var tableData = []; 
+// var perCapitaTable = Plotly.d3.select("#perCapitaTable"); 
+//    perCapitaTable.attr("style", "display: none");  // Not to display table on page load                  
+var $tbody = document.querySelector('tbody');
 
 // populate the drop down of our years 
 function populateYears(){
@@ -203,7 +206,7 @@ function updateCountryTrend(data)
 		
         var layout = { title: '<b>'+ 'The History of Health Care Spending, 2000 - 2016' + '</b>',
                        xaxis: { range: cntryPlotYears, title: '<b> Calendar Years </b>', linewidth:1 },
-                       yaxis: { title: '<b> Per Capita Spending </b>', linewidth:1 },
+                       yaxis: { title: '<b> Per Capita Spending (in $) </b>', linewidth:1 },
                        height: 600,
                        width: 900
                      };
@@ -650,6 +653,34 @@ function getPerCapitaForSelectedStates(){
     
 }
 
+/////////////////////////////////////////////////////// display table /////////////////////////////////////////////////
+
+function displayTable(year) {
+    
+        url = "/yearlyStatesPerCapita/" + year;
+        text = "";
+        Plotly.d3.json(url, function (error, response)
+        {     
+            console.log("year PerCapita response", response);
+            tableData = response;          
+            $tbody.innerHTML = '';
+            console.log("Table Data: " + tableData);
+                for (var i = 0; i < tableData.length; i++)
+                {
+                    // Get get the current data object and its fields
+                    var data = tableData[i];
+                    var fields = Object.keys(data);
+                    // Create a new row in the tbody, set the index to be i + startingIndex
+                    var $row = $tbody.insertRow(i);
+                    for (var j = 0; j < fields.length; j++) {
+                      // For every field in the data object, create a new cell at set its inner text to be the current value 
+                      var field = fields[j];
+                      var $cell = $row.insertCell(j);
+                      $cell.innerText = data[field];
+                    }
+                }
+        }); 
+    }
 /////////////////////////////////////////////// anchor elements control//////////////////////////////////////
 
 
@@ -669,7 +700,8 @@ for (var i = 0; i < anchors.length ; i++) {
             var lineChart = Plotly.d3.select("#lineChart");
             var hcSummaryChart = Plotly.d3.select("#hc-summary-chart");
             var hcSpendingChart = Plotly.d3.select("#hc-spending-chart");
-
+            var perCapitaTable = Plotly.d3.select("#perCapitaTable"); 
+            
             switch(anchorID){
                 case("an-map"):
                     // display map
@@ -680,7 +712,8 @@ for (var i = 0; i < anchors.length ; i++) {
                     gdpPlot.attr("style", "display: none");
                     hcSummaryChart.attr("style", "display: none");
                     hcSpendingChart.attr("style", "display: none");
-
+                    perCapitaTable.attr("style", "display: none");
+                    
                     stateCheckboxes.attr("style", "display: none");
                     stateDropdowns.attr("style", "display: inline");
                     buildmaps(selectedYear);
@@ -694,7 +727,8 @@ for (var i = 0; i < anchors.length ; i++) {
                     gdpPlot.attr("style", "display: none");
                     hcSummaryChart.attr("style", "display: none");
                     hcSpendingChart.attr("style", "display: none");
-
+                    perCapitaTable.attr("style", "display: none");
+                    
                     stateCheckboxes.attr("style", "display: none");
                     stateDropdowns.attr("style", "display: inline");
                     getPerCapitaForSelectedStates();
@@ -710,7 +744,8 @@ for (var i = 0; i < anchors.length ; i++) {
                     map.attr("style", "display: none");
                     countryTrend.attr("style", "display: none");
                     gdpPlot.attr("style", "display: none");
-
+                    perCapitaTable.attr("style", "display: none");
+                    
                     stateCheckboxes.attr("style", "display: none");
                     stateDropdowns.attr("style", "display: inline");
                     getInsuredPopulationByState();
@@ -726,7 +761,8 @@ for (var i = 0; i < anchors.length ; i++) {
                     map.attr("style", "display: none");
                     hcSummaryChart.attr("style", "display: none");
                     hcSpendingChart.attr("style", "display: none");
-
+                    perCapitaTable.attr("style", "display: none");
+                    
                     stateCheckboxes.attr("style", "display: none");
                     stateDropdowns.attr("style", "display: inline");
                     populateCountryTrend();
@@ -737,6 +773,14 @@ for (var i = 0; i < anchors.length ; i++) {
                     stateCheckboxes.attr("style", "display: block");
                     stateDropdowns.attr("style", "display: none");
                     displayTable();
+
+                    perCapitaTable.attr("style", "display: inline");
+                    donut.attr("style", "display: none");
+                    lineChart.attr("style", "display: none");
+                    map.attr("style", "display: none");
+                    countryTrend.attr("style", "display: none");
+                    gdpPlot.attr("style", "display: none");              
+
                     break;
                 default:
                     lineChart.attr("style", "display: none");
@@ -746,6 +790,8 @@ for (var i = 0; i < anchors.length ; i++) {
                     gdpPlot.attr("style", "display: none");
                     hcSummaryChart.attr("style", "display: none");
                     hcSpendingChart.attr("style", "display: none");
+                    perCapitaTable.attr("style", "display: none");
+                    
                     console.log("in default case");
                     break;
             }
@@ -764,7 +810,4 @@ populateYears();
 poopulateStatesDropdown();
 //changedYear(selectedYear);
 //populateCountryTrend() // Jagatha
-
-
-
-
+displayTable(2001);

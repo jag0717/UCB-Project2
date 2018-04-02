@@ -164,9 +164,16 @@ def getYearlyStatesPerCapita(year):
     perCapita = gdp_df.to_dict()
     temp_dict = perCapita[year]
     response_dict = {}
+    #for key, value in temp_dict.items():
+    #    response_dict[key] = np.asscalar(value)
+    #return jsonify(response_dict)
+    state_per_capita = []
     for key, value in temp_dict.items():
-        response_dict[key] = np.asscalar(value)
-    return jsonify(response_dict)
+            response_dict['zCapita'] = value
+            response_dict['State'] = key
+            state_per_capita.append(response_dict)
+            response_dict = {}
+    return jsonify(state_per_capita)
 
 @app.route('/yearlyStatesPopulation/<year>')
 def getYearlyStatesPopulation(year):
