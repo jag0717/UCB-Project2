@@ -169,7 +169,7 @@ def getYearlyStatesPerCapita(year):
     #return jsonify(response_dict)
     state_per_capita = []
     for key, value in temp_dict.items():
-            response_dict['zCapita'] = value
+            response_dict['zCapita'] = np.asscalar(value)
             response_dict['State'] = key
             state_per_capita.append(response_dict)
             response_dict = {}
@@ -227,7 +227,7 @@ def getYearlyHCSpendingByState(year,state):
     total_medicare_spending = np.asscalar(getYearStatePercapita("MEDICARE_TOTAL_SPENDING", year, state))
     
     response_dict = {'PRIVATE' :  total_phi_spending, 'MEDICAID':  total_medicaid_spending,\
-                     'MEDICARE': total_medicare_spending}
+                     'MEDICARE': total_medicare_spending, 'TOTAL': total_us_spending}
     return jsonify(response_dict)
 
 if __name__ == '__main__':

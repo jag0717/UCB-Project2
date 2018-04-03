@@ -239,6 +239,8 @@ function changedYear(year){
     buildmaps(year);
     getInsuredPopulationByState();
     getHCSpendingByState();
+    displayTable(selectedYear);
+
     
 }
 /*
@@ -338,7 +340,8 @@ function getHCSpendingByState(){
 
 function displayHCSpendingPieChart(hcspending_resp){
     console.log("hcspending_resp ", hcspending_resp);
-    
+    var total_spending = hcspending_resp['TOTAL'];
+    delete hcspending_resp['TOTAL'];
     var myChart = document.getElementById("hc-spending-chart");
     
     var trace1 =
@@ -359,7 +362,7 @@ function displayHCSpendingPieChart(hcspending_resp){
     var data = [trace1];
     
     var layout = { 
-                   title: "<b> Total Health Care Spending (in Millions $) <br> for " +  stateSelection+" in the year "+ selectedYear +'</b><br>',
+                   title: "<b> Total Health Care Spending : $"+ total_spending+"  (in Millions) <br> for " +  stateSelection+" in the year "+ selectedYear +'</b><br>',
                    height: 600,
                    width: 900
                  };
@@ -583,6 +586,92 @@ function buildmaps(year) {
 function getPerCapitaForSelectedStates(){
     var ctx = document.getElementById("lineChart").getContext("2d");    
    var state = stateSelection;
+     console.log(state)
+ 
+       url = "/statesPerCapita/" + state
+         Plotly.d3.json(url, function (error, response) {
+             console.log("state gdp resp: ", response);
+             var obj = response
+             delete response.State_Name;
+             console.log(obj)
+ 
+           // Random color
+             var dynamicColors = function() {
+                 var r = Math.floor(Math.random() * 255);
+                 var g = Math.floor(Math.random() * 255);
+                 var b = Math.floor(Math.random() * 255);
+                 return "rgb(" + r + "," + g + "," + b + ")";
+             }    
+ 
+           var lineChart = new Chart(ctx, {
+                 type: 'line',
+                 data: {
+                    labels: Object.keys(obj),
+                    datasets: [{
+                         label: state,
+                         fill: false,
+                         lineTension: 0,
+                         backgroundColor: dynamicColors(),
+                         borderColor: dynamicColors(),
+                         borderCapStyle: 'butt',
+                         borderDash: [],
+                         borderDashOffset: 0.0,
+                         borderJointStyle: 'miter',
+                         data: Object.values(obj)
+                     }]                    
+                },
+                 options: {
+                     title: {
+                         display: true,
+                         fontSize: 15,
+                         text: 'Personal Health Care Expenditures per Capita by State 2001 - 2014 Trend'
+                     },
+                     tooltips: {
+                         callbacks: {
+                             label: function(tooltipItem, data) {
+                                 return "$" + Number(tooltipItem.yLabel).toFixed(0).replace(/./g, function(c, i, a) {
+                                     return i > 0 && c !== "." && (a.length - i) % 3 === 0 ? "," + c : c;
+                                 });
+                             }
+                         }
+                     },
+                     scales: {
+                         yAxes: [{
+                             ticks: {
+                                 
+                                callback: function(value, index, values) {
+                                     if(parseInt(value) >= 1000){
+                                       return '$' + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                     } else {
+                                       return '$' + value;
+                                     }
+                                 }
+                             },
+                             scaleLabel: {
+                                 display: true,
+                                 labelString: 'Health Spending per Capita ($M)',
+                                 fontStyle: 'bold',
+                                 fontSize: '12',
+                               }
+                         }],
+                         xAxes: [{
+                             scaleLabel: {
+                                 display: true,
+                                 labelString: 'Years',
+                                 fontStyle: 'bold',
+                                 fontSize: '12',
+                               }
+                         }]
+                      }
+                 }  
+            })
+     });
+     
+ }
+/*
+function getPerCapitaForSelectedStates(){
+    var ctx = document.getElementById("lineChart").getContext("2d");    
+   var state = stateSelection;
     console.log(state)
 
        url = "/statesPerCapita/" + state
@@ -652,6 +741,7 @@ function getPerCapitaForSelectedStates(){
     });
     
 }
+*/
 
 /////////////////////////////////////////////////////// display table /////////////////////////////////////////////////
 
@@ -772,10 +862,9 @@ for (var i = 0; i < anchors.length ; i++) {
                 case("an-table"):
                     stateCheckboxes.attr("style", "display: block");
                     stateDropdowns.attr("style", "display: none");
-                    displayTable();
+                    displayTable(selectedYear);
 
                     perCapitaTable.attr("style", "display: inline");
-                    donut.attr("style", "display: none");
                     lineChart.attr("style", "display: none");
                     map.attr("style", "display: none");
                     countryTrend.attr("style", "display: none");
@@ -785,7 +874,6 @@ for (var i = 0; i < anchors.length ; i++) {
                 default:
                     lineChart.attr("style", "display: none");
                     map.attr("style", "display: none");
-                    donut.attr("style", "display: none");
                     countryTrend.attr("style", "display: none");
                     gdpPlot.attr("style", "display: none");
                     hcSummaryChart.attr("style", "display: none");
@@ -810,4 +898,4 @@ populateYears();
 poopulateStatesDropdown();
 //changedYear(selectedYear);
 //populateCountryTrend() // Jagatha
-displayTable(2001);
+displayTable(selectedYear);
